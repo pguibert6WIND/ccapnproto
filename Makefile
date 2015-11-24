@@ -1,7 +1,7 @@
 .PHONY: all clean test
 
-LDFLAGS=-O2 -Wall -Werror -fPIC
-CFLAGS=-O2 -Wall -Werror -fPIC -I. -Wno-unused-function
+LDFLAGS=-O2 -Wall -Wextra -fPIC
+CFLAGS=-O2 -Wall -Wextra -fPIC -I. -Wno-unused-function
 GTEST_CFLAGS=-I../gtest/include
 
 all: capn.so capnpc-c test
@@ -22,7 +22,7 @@ test: capn-test
 	./capn-test
 
 %-test.o: %-test.cpp *.h *.c *.inc
-	$(CXX) -g -Wall -Werror -I. $(GTEST_CFLAGS) -o $@ -c $<
+	$(CXX) -g -Wall -Wextra -I. $(GTEST_CFLAGS) -o $@ -c $<
 
 capn-test: capn-test.o capn-stream-test.o compiler/test.capnp.o compiler/schema-test.o compiler/schema.capnp.o gtest-all-test.o
-	$(CXX) -g -Wall -Werror -I. -o $@ $^
+	$(CXX) -g -Wall -Wextra -I. -o $@ $^
