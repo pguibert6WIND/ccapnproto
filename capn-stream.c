@@ -112,7 +112,7 @@ int capn_inflate(struct capn_stream* s) {
 	}
 
 	while (s->avail_out) {
-		int i, sz;
+		size_t i, sz;
 		uint8_t hdr;
 
 		if (s->zeros > 0) {

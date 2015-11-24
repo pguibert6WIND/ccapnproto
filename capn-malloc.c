@@ -17,7 +17,7 @@ struct check_segment_alignment {
 	unsigned int foo : (sizeof(struct capn_segment)&7) ? -1 : 1;
 };
 
-static struct capn_segment *create(void *u, uint32_t id, int sz) {
+static struct capn_segment *create(void *u, uint32_t id, size_t sz) {
 	struct capn_segment *s;
 	sz += sizeof(*s);
 	if (sz < 4096) {
@@ -32,7 +32,7 @@ static struct capn_segment *create(void *u, uint32_t id, int sz) {
 	return s;
 }
 
-static struct capn_segment *create_local(void *u, int sz) {
+static struct capn_segment *create_local(void *u, size_t sz) {
 	return create(u, 0, sz);
 }
 
@@ -170,7 +170,7 @@ capn_write_mem(struct capn *c, uint8_t *p, size_t sz, int packed)
 {
 	struct capn_segment *seg;
 	struct capn_ptr root;
-	int i;
+	uint32_t i;
 	uint32_t headerlen;
 	size_t datasz;
 	uint32_t *header;

@@ -51,8 +51,8 @@ extern "C" {
 struct capn {
 	/* user settable */
 	struct capn_segment *(*lookup)(void* /*user*/, uint32_t /*id */);
-	struct capn_segment *(*create)(void* /*user*/, uint32_t /*id */, int /*sz*/);
-	struct capn_segment *(*create_local)(void* /*user*/, int /*sz*/);
+	struct capn_segment *(*create)(void* /*user*/, uint32_t /*id */, size_t /*sz*/);
+	struct capn_segment *(*create_local)(void* /*user*/, size_t /*sz*/);
 	void *user;
 	/* zero initialized, user should not modify */
 	uint32_t segnum;
@@ -102,7 +102,7 @@ struct capn_segment {
 	uint32_t id;
 	/* user settable */
 	char *data;
-	int len, cap;
+	size_t len, cap;
 	void *user;
 };
 
@@ -122,13 +122,13 @@ struct capn_ptr {
 	unsigned int is_composite_list : 1;
 	unsigned int datasz : 19;
 	unsigned int ptrs : 16;
-	int len;
+	size_t len;
 	char *data;
 	struct capn_segment *seg;
 };
 
 struct capn_text {
-	int len;
+	size_t len;
 	const char *str;
 	struct capn_segment *seg;
 };
@@ -163,8 +163,8 @@ void capn_resolve(capn_ptr *p);
  * is in a different segment/context.
  * Both of these will use/return inner pointers for composite lists.
  */
-capn_ptr capn_getp(capn_ptr p, int off, int resolve);
-int capn_setp(capn_ptr p, int off, capn_ptr tgt);
+capn_ptr capn_getp(capn_ptr p, size_t off, int resolve);
+int capn_setp(capn_ptr p, size_t off, capn_ptr tgt);
 
 capn_text capn_get_text(capn_ptr p, int off, capn_text def);
 capn_data capn_get_data(capn_ptr p, int off);
@@ -177,16 +177,16 @@ int capn_set_text(capn_ptr p, int off, capn_text tgt);
  * The function returns the number of elements read or -1 on an error.
  * off must be byte aligned for capn_getv1
  */
-int capn_get1(capn_list1 p, int off);
-uint8_t capn_get8(capn_list8 p, int off);
-uint16_t capn_get16(capn_list16 p, int off);
-uint32_t capn_get32(capn_list32 p, int off);
-uint64_t capn_get64(capn_list64 p, int off);
-int capn_getv1(capn_list1 p, int off, uint8_t *data, int sz);
-int capn_getv8(capn_list8 p, int off, uint8_t *data, int sz);
-int capn_getv16(capn_list16 p, int off, uint16_t *data, int sz);
-int capn_getv32(capn_list32 p, int off, uint32_t *data, int sz);
-int capn_getv64(capn_list64 p, int off, uint64_t *data, int sz);
+int capn_get1(capn_list1 p, size_t off);
+uint8_t capn_get8(capn_list8 p, size_t off);
+uint16_t capn_get16(capn_list16 p, size_t off);
+uint32_t capn_get32(capn_list32 p, size_t off);
+uint64_t capn_get64(capn_list64 p, size_t off);
+int capn_getv1(capn_list1 p, size_t off, uint8_t *data, size_t sz);
+int capn_getv8(capn_list8 p, size_t off, uint8_t *data, size_t sz);
+int capn_getv16(capn_list16 p, size_t off, uint16_t *data, size_t sz);
+int capn_getv32(capn_list32 p, size_t off, uint32_t *data, size_t sz);
+int capn_getv64(capn_list64 p, size_t off, uint64_t *data, size_t sz);
 
 /* capn_set* functions set data in a list
  * off specifies how far into the list to start
@@ -194,16 +194,16 @@ int capn_getv64(capn_list64 p, int off, uint64_t *data, int sz);
  * The function returns the number of elemnts written or -1 on an error.
  * off must be byte aligned for capn_setv1
  */
-int capn_set1(capn_list1 p, int off, int v);
-int capn_set8(capn_list8 p, int off, uint8_t v);
-int capn_set16(capn_list16 p, int off, uint16_t v);
-int capn_set32(capn_list32 p, int off, uint32_t v);
-int capn_set64(capn_list64 p, int off, uint64_t v);
-int capn_setv1(capn_list1 p, int off, const uint8_t *data, int sz);
-int capn_setv8(capn_list8 p, int off, const uint8_t *data, int sz);
-int capn_setv16(capn_list16 p, int off, const uint16_t *data, int sz);
-int capn_setv32(capn_list32 p, int off, const uint32_t *data, int sz);
-int capn_setv64(capn_list64 p, int off, const uint64_t *data, int sz);
+int capn_set1(capn_list1 p, size_t off, int v);
+int capn_set8(capn_list8 p, size_t off, uint8_t v);
+int capn_set16(capn_list16 p, size_t off, uint16_t v);
+int capn_set32(capn_list32 p, size_t off, uint32_t v);
+int capn_set64(capn_list64 p, size_t off, uint64_t v);
+int capn_setv1(capn_list1 p, size_t off, const uint8_t *data, size_t sz);
+int capn_setv8(capn_list8 p, size_t off, const uint8_t *data, size_t sz);
+int capn_setv16(capn_list16 p, size_t off, const uint16_t *data, size_t sz);
+int capn_setv32(capn_list32 p, size_t off, const uint32_t *data, size_t sz);
+int capn_setv64(capn_list64 p, size_t off, const uint64_t *data, size_t sz);
 
 /* capn_new_* functions create a new object
  * datasz is in bytes, ptrs is # of pointers, sz is # of elements in the list
@@ -213,11 +213,11 @@ capn_ptr capn_new_struct(struct capn_segment *seg, int datasz, int ptrs);
 capn_ptr capn_new_interface(struct capn_segment *seg, int datasz, int ptrs);
 capn_ptr capn_new_ptr_list(struct capn_segment *seg, int sz);
 capn_ptr capn_new_list(struct capn_segment *seg, int sz, int datasz, int ptrs);
-capn_list1 capn_new_list1(struct capn_segment *seg, int sz);
-capn_list8 capn_new_list8(struct capn_segment *seg, int sz);
-capn_list16 capn_new_list16(struct capn_segment *seg, int sz);
-capn_list32 capn_new_list32(struct capn_segment *seg, int sz);
-capn_list64 capn_new_list64(struct capn_segment *seg, int sz);
+capn_list1 capn_new_list1(struct capn_segment *seg, size_t sz);
+capn_list8 capn_new_list8(struct capn_segment *seg, size_t sz);
+capn_list16 capn_new_list16(struct capn_segment *seg, size_t sz);
+capn_list32 capn_new_list32(struct capn_segment *seg, size_t sz);
+capn_list64 capn_new_list64(struct capn_segment *seg, size_t sz);
 
 /* capn_read|write* functions read/write struct values
  * off is the offset into the structure in bytes
@@ -269,7 +269,7 @@ void capn_reset_copy(struct capn *c);
  */
 struct capn_stream {
 	const uint8_t *next_in;
-	int avail_in;
+	size_t avail_in;
 	uint8_t *next_out;
 	int avail_out;
 	int zeros, raw;

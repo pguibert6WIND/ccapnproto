@@ -12,7 +12,7 @@
 #define LIST_T CAT(capn_list, SZ)
 #define FLIP CAT(capn_flip, SZ)
 
-UINT_T CAT(capn_get,SZ) (LIST_T l, int off) {
+UINT_T CAT(capn_get,SZ) (LIST_T l, size_t off) {
 	char *d;
 	capn_ptr p = l.p;
 	if (off >= p.len) {
@@ -39,8 +39,8 @@ UINT_T CAT(capn_get,SZ) (LIST_T l, int off) {
 	}
 }
 
-int CAT(capn_getv,SZ) (LIST_T l, int off, UINT_T *to, int sz) {
-	int i;
+int CAT(capn_getv,SZ) (LIST_T l, size_t off, UINT_T *to, size_t sz) {
+	size_t i;
 	capn_ptr p = l.p;
 	if (off + sz > p.len) {
 		sz = p.len - off;
@@ -77,7 +77,7 @@ int CAT(capn_getv,SZ) (LIST_T l, int off, UINT_T *to, int sz) {
 	}
 }
 
-int CAT(capn_set,SZ) (LIST_T l, int off, UINT_T v) {
+int CAT(capn_set,SZ) (LIST_T l, size_t off, UINT_T v) {
 	char *d;
 	capn_ptr p = l.p;
 	if (off >= p.len) {
@@ -105,8 +105,8 @@ int CAT(capn_set,SZ) (LIST_T l, int off, UINT_T v) {
 	}
 }
 
-int CAT(capn_setv,SZ) (LIST_T l, int off, const UINT_T *from, int sz) {
-	int i;
+int CAT(capn_setv,SZ) (LIST_T l, size_t off, const UINT_T *from, size_t sz) {
+	size_t i;
 	capn_ptr p = l.p;
 	if (off + sz > p.len) {
 		sz = p.len - off;
@@ -143,7 +143,7 @@ int CAT(capn_setv,SZ) (LIST_T l, int off, const UINT_T *from, int sz) {
 	}
 }
 
-LIST_T CAT(capn_new_list,SZ) (struct capn_segment *seg, int sz) {
+LIST_T CAT(capn_new_list,SZ) (struct capn_segment *seg, size_t sz) {
 	LIST_T l = {{CAPN_LIST}};
 	l.p.seg = seg;
 	l.p.len = sz;

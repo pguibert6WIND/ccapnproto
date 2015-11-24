@@ -379,7 +379,7 @@ static capn_ptr read_ptr(struct capn_segment *s, char *d) {
 			e = d + ret.len * 8;
 			break;
 		case COMPOSITE_LIST:
-			if (d+8-s->data > s->len) {
+			if ((size_t)(d+8-s->data) > s->len) {
 				goto err;
 			}
 
@@ -393,7 +393,7 @@ static capn_ptr read_ptr(struct capn_segment *s, char *d) {
 			ret.len = U32(val) >> 2;
 			ret.is_composite_list = 1;
 
-			if ((ret.datasz + 8*ret.ptrs) * ret.len != e - d) {
+			if ((ret.datasz + 8*ret.ptrs) * ret.len != (size_t)(e - d)) {
 				goto err;
 			}
 			break;
@@ -404,7 +404,7 @@ static capn_ptr read_ptr(struct capn_segment *s, char *d) {
 		goto err;
 	}
 
-	if (e - s->data > s->len)
+	if ((size_t)(e - s->data) > s->len)
 		goto err;
 
 	ret.data = d;
@@ -422,7 +422,7 @@ void capn_resolve(capn_ptr *p) {
 }
 
 /* TODO: should this handle CAPN_BIT_LIST? */
-capn_ptr capn_getp(capn_ptr p, int off, int resolve) {
+capn_ptr capn_getp(capn_ptr p, size_t off, int resolve) {
 	capn_ptr ret = {CAPN_FAR_POINTER};
 	ret.seg = p.seg;
 
@@ -768,7 +768,7 @@ static void copy_list_member(capn_ptr* t, capn_ptr *f, int *dep) {
 #define MAX_COPY_DEPTH 32
 
 /* TODO: handle CAPN_BIT_LIST and setting from an inner bit list member */
-int capn_setp(capn_ptr p, int off, capn_ptr tgt) {
+int capn_setp(capn_ptr p, size_t off, capn_ptr tgt) {
 	struct capn_ptr to[MAX_COPY_DEPTH], from[MAX_COPY_DEPTH];
 	char *data;
 	int err, dep = 0;
@@ -870,13 +870,13 @@ int capn_setp(capn_ptr p, int off, capn_ptr tgt) {
 
 /* TODO: handle CAPN_LIST, CAPN_PTR_LIST for bit lists */
 
-int capn_get1(capn_list1 l, int off) {
+int capn_get1(capn_list1 l, size_t off) {
 	return l.p.type == CAPN_BIT_LIST
 		&& off < l.p.len
 		&& (l.p.data[off/8] & (1 << (off%8))) != 0;
 }
 
-int capn_set1(capn_list1 l, int off, int val) {
+int capn_set1(capn_list1 l, size_t off, int val) {
 	if (l.p.type != CAPN_BIT_LIST || off >= l.p.len)
 		return -1;
 	if (val) {
@@ -887,9 +887,9 @@ int capn_set1(capn_list1 l, int off, int val) {
 	return 0;
 }
 
-int capn_getv1(capn_list1 l, int off, uint8_t *data, int sz) {
+int capn_getv1(capn_list1 l, size_t off, uint8_t *data, size_t sz) {
 	/* Note we only support aligned reads */
-	int bsz;
+	size_t bsz;
 	capn_ptr p = l.p;
 	if (p.type != CAPN_BIT_LIST || (off & 7) != 0)
 		return -1;
@@ -906,9 +906,9 @@ int capn_getv1(capn_list1 l, int off, uint8_t *data, int sz) {
 	}
 }
 
-int capn_setv1(capn_list1 l, int off, const uint8_t *data, int sz) {
+int capn_setv1(capn_list1 l, size_t off, const uint8_t *data, size_t sz) {
 	/* Note we only support aligned writes */
-	int bsz;
+	size_t bsz;
 	capn_ptr p = l.p;
 	if (p.type != CAPN_BIT_LIST || (off & 7) != 0)
 		return -1;
@@ -1021,7 +1021,7 @@ capn_ptr capn_new_list(struct capn_segment *seg, int sz, int datasz, int ptrs) {
 	return p;
 }
 
-capn_list1 capn_new_list1(struct capn_segment *seg, int sz) {
+capn_list1 capn_new_list1(struct capn_segment *seg, size_t sz) {
 	capn_list1 l = {{CAPN_BIT_LIST}};
 	l.p.seg = seg;
 	l.p.datasz = (sz+7)/8;
@@ -1040,10 +1040,12 @@ capn_ptr capn_new_ptr_list(struct capn_segment *seg, int sz) {
 	return p;
 }
 
-capn_ptr capn_new_string(struct capn_segment *seg, const char *str, int sz) {
+capn_ptr capn_new_string(struct capn_segment *seg, const char *str, ssize_t sz);
+
+capn_ptr capn_new_string(struct capn_segment *seg, const char *str, ssize_t sz) {
 	capn_ptr p = {CAPN_LIST};
 	p.seg = seg;
-	p.len = ((sz >= 0) ? sz : strlen(str)) + 1;
+	p.len = ((sz >= 0) ? (size_t)sz : strlen(str)) + 1;
 	p.datasz = 1;
 	new_object(&p, p.len);
 	if (p.data) {
