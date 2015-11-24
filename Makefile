@@ -4,7 +4,7 @@ LDFLAGS=-O2 -Wall -Wextra -fPIC
 CFLAGS=-O2 -Wall -Wextra -fPIC -I. -Wno-unused-function
 GTEST_CFLAGS=-I../gtest/include
 
-all: capn.so capnpc-c test
+all: libcapn.a libcapn.so capnpc-c test
 
 clean:
 	rm -f *.o *.so capnpc-c compiler/*.o
@@ -12,10 +12,14 @@ clean:
 %.o: %.c *.h *.inc compiler/*.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-capn.so: capn-malloc.o capn-stream.o capn.o
+libcapn.a: capn-malloc.o capn-stream.o capn.o
+	ar cr $@ $^
+	ranlib $@
+
+libcapn.so: capn-malloc.o capn-stream.o capn.o
 	$(CC) -shared $(LDFLAGS) $^ -o $@
 
-capnpc-c: compiler/capnpc-c.o compiler/schema.capnp.o compiler/str.o capn.so
+capnpc-c: compiler/capnpc-c.o compiler/schema.capnp.o compiler/str.o libcapn.so
 	$(CC) $(LDFLAGS) $^ -o $@
 
 test: capn-test
