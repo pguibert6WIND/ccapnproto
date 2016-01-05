@@ -712,13 +712,13 @@ static void do_union(struct strings *s, struct node *n, struct field *first_fiel
 		str_addf(&tag, "%.*s_which", s->var.len - 1, s->var.str);
 		str_addf(&enums, "enum %s_which {", n->name.str);
 		str_addf(&s->decl, "%senum %s_which %s_which;\n", s->dtab.str, n->name.str, union_name);
-		str_addf(&s->get, "%s%s = (enum %s_which) capn_read16(p.p, %d);\n",
+		str_addf(&s->get, "%s%s = (enum %s_which)(int) capn_read16(p.p, %d);\n",
 				s->ftab.str, tag.str, n->name.str, tagoff);
 	} else {
 		str_addf(&tag, "%swhich", s->var.str);
 		str_addf(&enums, "enum %s_which {", n->name.str);
 		str_addf(&s->decl, "%senum %s_which which;\n", s->dtab.str, n->name.str);
-		str_addf(&s->get, "%s%s = (enum %s_which) capn_read16(p.p, %d);\n",
+		str_addf(&s->get, "%s%s = (enum %s_which)(int) capn_read16(p.p, %d);\n",
 				s->ftab.str, tag.str, n->name.str, tagoff);
 	}
 
