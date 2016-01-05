@@ -19,7 +19,7 @@ libcapn.a: capn-malloc.o capn-stream.o capn.o
 libcapn.so: capn-malloc.o capn-stream.o capn.o
 	$(CC) -shared $(LDFLAGS) $^ -o $@
 
-capnpc-c: compiler/capnpc-c.o compiler/schema.capnp.o compiler/str.o libcapn.so
+capnpc-c: compiler/capnpc-c.o compiler/schema.capnp.o compiler/str.o libcapn.a
 	$(CC) $(LDFLAGS) $^ -o $@
 
 test: capn-test
