@@ -1,5 +1,7 @@
 *.o
+*.lo
 *.so
 *.a
+.deps
 /capn-test
 /capnpc-c
