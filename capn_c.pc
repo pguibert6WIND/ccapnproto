@@ -1,0 +1,13 @@
+#
+
+prefix=/opt/quagga
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: capn_c
+Description: c-capnproto API
+Version: 1.0.0-dev
+Requires: 
+Libs: -L${libdir} -lcapn_c
+Cflags: -I${includedir}
