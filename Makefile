@@ -4,7 +4,8 @@ LDFLAGS=-O2 -Wall -Wextra -fPIC
 CFLAGS=-O2 -Wall -Wextra -fPIC -I. -Wno-unused-function
 GTEST_CFLAGS=-I../gtest/include
 
-all: libcapn.a libcapn.so capnpc-c test
+all: libcapn.a libcapn.so capnpc-c 
+#test
 
 clean:
 	rm -f *.o *.so capnpc-c compiler/*.o
